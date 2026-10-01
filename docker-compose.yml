@@ -1,0 +1,87 @@
+services:
+
+  # ── MySQL Database ────────────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: medical_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: medical_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Backend (Express API) ─────────────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend
+    container_name: medical_backend
+    restart: unless-stopped
+    working_dir: /app/backend
+    command: node dist/server.js
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./backend/.env.production
+    environment:
+      NODE_ENV: production
+      DB_DRIVER: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: rootpassword
+      DB_NAME: medical_db
+      DB_FALLBACK_SQLITE: "0"
+      JWT_SECRET: local-dev-secret-please-change-32-characters
+      FRONTEND_URL: http://localhost:3000
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads_data:/app/backend/uploads
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Frontend (Next.js) ────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frontend
+    container_name: medical_frontend
+    restart: unless-stopped
+    working_dir: /app/frontend
+    command: node node_modules/.bin/next start
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend/.env.production
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://localhost:3001/api
+      NEXT_PUBLIC_DEMO_MODE: "false"
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: local-dev-nextauth-secret-32-characters
+      GOOGLE_CLIENT_ID: your-google-client-id
+      GOOGLE_CLIENT_SECRET: your-google-client-secret
+      FACEBOOK_CLIENT_ID: your-facebook-app-id
+      FACEBOOK_CLIENT_SECRET: your-facebook-app-secret
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+  uploads_data:

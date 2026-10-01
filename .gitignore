@@ -1,0 +1,14 @@
+node_modules/
+.next/
+.env
+.env.*
+!.env.example
+
+backend/data/
+backend/uploads/
+*.db
+*.db-shm
+*.db-wal
+
+npm-debug.log*
+.DS_Store

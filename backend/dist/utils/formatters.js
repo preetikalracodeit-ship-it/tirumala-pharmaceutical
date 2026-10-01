@@ -1,0 +1,79 @@
+export function formatOrder(o, items = []) {
+    return {
+        id: o.id,
+        orderNumber: o.order_number,
+        userId: o.user_id,
+        spId: o.sp_id ?? null,
+        status: o.status,
+        paymentMethod: o.payment_method,
+        paymentStatus: o.payment_status,
+        subtotal: Number(o.subtotal),
+        discountAmount: Number(o.discount_amount),
+        totalAmount: Number(o.total_amount),
+        gstAmount: Number(o.gst_amount ?? 0),
+        trackingCode: o.tracking_code ?? null,
+        deliveryNotes: o.delivery_notes ?? null,
+        paidAmount: Number(o.paid_amount),
+        notes: o.notes ?? '',
+        shippingAddress: o.shipping_address ?? '',
+        paymentScreenshotUrl: o.payment_screenshot_url ?? null,
+        receiptStatus: o.receipt_status ?? 'NONE',
+        receiptRemark: o.receipt_remark ?? null,
+        receiptConfirmedAt: o.receipt_confirmed_at ?? null,
+        receiptNotifiedAt: o.receipt_notified_at ?? null,
+        deliveredAt: o.delivered_at ?? null,
+        createdAt: o.created_at,
+        updatedAt: o.updated_at,
+        userName: o.user_name ?? null,
+        userOrg: o.user_org ?? null,
+        spName: o.sp_name ?? null,
+        // 🆕 New delivery system fields
+        deliveryScreenshotUrl: o.delivery_screenshot_url ?? null,
+        customerDeliveryStatus: o.customer_delivery_status ?? 'NONE',
+        deliveryMessageSentAt: o.delivery_message_sent_at ?? null,
+        remarkFromCustomer: o.remark_from_customer ?? null,
+        items: items.map(i => ({
+            id: i.id,
+            orderId: i.order_id,
+            productId: i.product_id,
+            productName: i.product_name,
+            quantity: i.quantity,
+            unitPrice: Number(i.unit_price),
+            discountPct: Number(i.discount_pct),
+            totalPrice: Number(i.total_price),
+        })),
+    };
+}
+export function formatCommission(c) {
+    return {
+        id: c.id,
+        spId: c.sp_id,
+        orderId: c.order_id,
+        orderNumber: c.order_number ?? null,
+        spName: c.sp_name ?? null,
+        customerId: c.customer_id ?? null,
+        customerName: c.customer_name ?? null,
+        customerOrg: c.customer_org ?? null,
+        orderAmount: Number(c.order_amount),
+        commissionPct: Number(c.commission_pct),
+        commissionAmount: Number(c.commission_amount),
+        status: c.status,
+        paidAt: c.paid_at ?? null,
+        createdAt: c.created_at,
+        updatedAt: c.updated_at,
+    };
+}
+export function formatLedger(e) {
+    return {
+        id: e.id,
+        userId: e.user_id,
+        type: e.type,
+        amount: Number(e.amount),
+        balanceAfter: Number(e.balance_after),
+        description: e.description,
+        referenceId: e.reference_id ?? null,
+        referenceType: e.reference_type ?? null,
+        createdAt: e.created_at,
+    };
+}
+//# sourceMappingURL=formatters.js.map
